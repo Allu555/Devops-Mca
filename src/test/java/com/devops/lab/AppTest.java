@@ -1,30 +1,22 @@
 package com.devops.lab;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AppTest {
 
     @Test
-    public void verifySystemEnvironmentExecution() {
+    public void testApp() {
         assertTrue(true);
     }
 
     @Test
-    public void verifyPipelineVelocityCalculation() {
+    public void verifySystemBottleneckValidation() {
+        boolean constraintDefectDetected = true;
 
-        int leadTimeDays = 10;
-        int targetWasteReductionDays = 3;
-
-        int optimizedCycleTime =
-                leadTimeDays - targetWasteReductionDays;
-
-        assertEquals(
-                7,
-                optimizedCycleTime,
-                "The optimized cycle time calculation failed."
+        org.junit.jupiter.api.Assertions.assertFalse(
+            constraintDefectDetected,
+            "CRITICAL: System bottleneck or defect detected in value stream!"
         );
     }
 }
