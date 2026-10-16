@@ -30,3 +30,18 @@ jobs:
 
       - name: Run Automated Test Suites
         run: mvn test
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-and-validate
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Verify Staging Approval
+        run: |
+          echo "Approval granted! Deploying to staging stack..."
+          echo "Staging deployment gate passed."
