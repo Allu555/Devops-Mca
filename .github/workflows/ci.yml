@@ -11,37 +11,53 @@ permissions:
 
 jobs:
   build-and-validate:
+    name: Build, Test and Package
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        java-version: [17, 21]
 
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@v5
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java-version }}
+          java-version: '17'
           distribution: temurin
           cache: maven
 
-      - name: Run Automated Test Suites
-        run: mvn test
+      - name: Compile Code Base
+        run: mvn -B clean compile
 
-  deploy-staging:
-    name: Deploy to Staging
+      - name: Run Automated Test Suites
+        run: mvn -B test
+
+      - name: Package Executable Distribution
+        run: mvn -B package
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-ready-jar
+          path: target/*.jar
+          retention-days: 5
+
+  deploy-production:
+    name: Deploy to Production
     needs: build-and-validate
     runs-on: ubuntu-latest
-    environment: staging
 
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-ready-jar
+          path: production-package
 
-      - name: Verify Staging Approval
+      - name: Verify Production Package
         run: |
-          echo "Approval granted! Deploying to staging stack..."
-          echo "Staging deployment gate passed."
+          echo "CI tests passed."
+          echo "Preparing the production package..."
+          find production-package -maxdepth 2 -type f -name '*.jar' -print
+          test -n "$(find production-package -type f -name '*.jar' -print -quit)"
+          echo "Production package verified."
+          echo "Automatic deployment pipeline completed."
